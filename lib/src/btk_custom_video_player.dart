@@ -1,3 +1,4 @@
+import 'package:btk_toolkit/btk_toolkit.dart';
 import 'package:chewie/src/chewie_player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -65,10 +66,11 @@ class _BTKCustomVideoPlayerState extends State<BTKCustomVideoPlayer> {
             children: [
               Text(
                 widget.title!,
-                style: TextStyle(
+                style: HSTextStyles.textStyle(
+                  context,
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black.withOpacity(0.8),
+                  color: HSColors.primaryBlack.withValues(alpha: 0.8),
                 ),
               ),
               const SizedBox(height: 16),

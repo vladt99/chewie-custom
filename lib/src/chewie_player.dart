@@ -28,12 +28,13 @@ typedef ChewieRoutePageBuilder = Widget Function(
 class Chewie extends StatefulWidget {
   const Chewie({
     super.key,
-    required this.controller,
     this.webIdentifier = 'video-player',
+    required this.controller,
   });
 
   /// The [ChewieController]
   final ChewieController controller;
+
   final String webIdentifier;
 
   @override
@@ -107,6 +108,7 @@ class ChewieState extends State<Chewie> {
   ) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.black,
       body: Container(
         alignment: Alignment.center,
         color: Colors.black,
@@ -162,6 +164,7 @@ class ChewieState extends State<Chewie> {
 
   Future<dynamic> _pushFullScreenWidget(BuildContext context) async {
     final TransitionRoute<void> route = PageRouteBuilder<void>(
+      fullscreenDialog: true,
       pageBuilder: _fullScreenRoutePageBuilder,
     );
 
@@ -170,23 +173,17 @@ class ChewieState extends State<Chewie> {
     if (!widget.controller.allowedScreenSleep) {
       WakelockPlus.enable();
     }
-
     FullscreenUtils().enterFullscreen();
-
     await Navigator.of(
       context,
       rootNavigator: widget.controller.useRootNavigator,
     ).push(route);
-
-    if (kIsWeb) {
-      _reInitializeControllers();
-    }
-
     _isFullScreen = false;
     FullscreenUtils().exitFullscreen();
-
     widget.controller.exitFullScreen();
-
+    if (kIsWeb) {
+      return;
+    }
     if (!widget.controller.allowedScreenSleep) {
       WakelockPlus.disable();
     }
@@ -201,6 +198,9 @@ class ChewieState extends State<Chewie> {
   }
 
   void onEnterFullScreen() {
+    if (kIsWeb) {
+      return;
+    }
     final videoWidth = widget.controller.videoPlayerController.value.size.width;
     final videoHeight =
         widget.controller.videoPlayerController.value.size.height;
@@ -250,18 +250,6 @@ class ChewieState extends State<Chewie> {
       }
     }
   }
-
-  ///When viewing full screen on web, returning from full screen causes original video to lose the picture.
-  ///We re initialise controllers for web only when returning from full screen
-  void _reInitializeControllers() {
-    final prevPosition = widget.controller.videoPlayerController.value.position;
-    widget.controller.videoPlayerController.initialize().then((_) async {
-      widget.controller._initialize();
-      widget.controller.videoPlayerController.seekTo(prevPosition);
-      await widget.controller.videoPlayerController.play();
-      widget.controller.videoPlayerController.pause();
-    });
-  }
 }
 
 /// The ChewieController is used to configure and drive the Chewie Player
@@ -287,8 +275,6 @@ class ChewieController extends ChangeNotifier {
     this.fullScreenByDefault = false,
     this.cupertinoProgressColors,
     this.materialProgressColors,
-    this.materialSeekButtonFadeDuration = const Duration(milliseconds: 300),
-    this.materialSeekButtonSize = 26,
     this.placeholder,
     this.overlay,
     this.showControlsOnInitialize = true,
@@ -300,11 +286,9 @@ class ChewieController extends ChangeNotifier {
     this.zoomAndPan = false,
     this.maxScale = 2.5,
     this.subtitle,
-    this.showSubtitles = false,
     this.subtitleBuilder,
     this.customControls,
     this.errorBuilder,
-    this.bufferingBuilder,
     this.allowedScreenSleep = true,
     this.isLive = false,
     this.allowFullScreen = true,
@@ -320,7 +304,6 @@ class ChewieController extends ChangeNotifier {
     this.progressIndicatorDelay,
     this.hideControlsTimer = defaultHideControlsTimer,
     this.controlsSafeAreaMinimum = EdgeInsets.zero,
-    this.pauseOnBackgroundTap = false,
   }) : assert(
           playbackSpeeds.every((speed) => speed > 0),
           'The playbackSpeeds values must all be greater than 0',
@@ -340,8 +323,6 @@ class ChewieController extends ChangeNotifier {
     bool? fullScreenByDefault,
     ChewieProgressColors? cupertinoProgressColors,
     ChewieProgressColors? materialProgressColors,
-    Duration? materialSeekButtonFadeDuration,
-    double? materialSeekButtonSize,
     Widget? placeholder,
     Widget? overlay,
     bool? showControlsOnInitialize,
@@ -353,10 +334,8 @@ class ChewieController extends ChangeNotifier {
     bool? zoomAndPan,
     double? maxScale,
     Subtitles? subtitle,
-    bool? showSubtitles,
     Widget Function(BuildContext, dynamic)? subtitleBuilder,
     Widget? customControls,
-    WidgetBuilder? bufferingBuilder,
     Widget Function(BuildContext, String)? errorBuilder,
     bool? allowedScreenSleep,
     bool? isLive,
@@ -378,7 +357,6 @@ class ChewieController extends ChangeNotifier {
       Animation<double>,
       ChewieControllerProvider,
     )? routePageBuilder,
-    bool? pauseOnBackgroundTap,
   }) {
     return ChewieController(
       draggableProgressBar: draggableProgressBar ?? this.draggableProgressBar,
@@ -395,10 +373,6 @@ class ChewieController extends ChangeNotifier {
           cupertinoProgressColors ?? this.cupertinoProgressColors,
       materialProgressColors:
           materialProgressColors ?? this.materialProgressColors,
-      materialSeekButtonFadeDuration:
-          materialSeekButtonFadeDuration ?? this.materialSeekButtonFadeDuration,
-      materialSeekButtonSize:
-          materialSeekButtonSize ?? this.materialSeekButtonSize,
       placeholder: placeholder ?? this.placeholder,
       overlay: overlay ?? this.overlay,
       showControlsOnInitialize:
@@ -407,12 +381,10 @@ class ChewieController extends ChangeNotifier {
       optionsBuilder: optionsBuilder ?? this.optionsBuilder,
       additionalOptions: additionalOptions ?? this.additionalOptions,
       showControls: showControls ?? this.showControls,
-      showSubtitles: showSubtitles ?? this.showSubtitles,
       subtitle: subtitle ?? this.subtitle,
       subtitleBuilder: subtitleBuilder ?? this.subtitleBuilder,
       customControls: customControls ?? this.customControls,
       errorBuilder: errorBuilder ?? this.errorBuilder,
-      bufferingBuilder: bufferingBuilder ?? this.bufferingBuilder,
       allowedScreenSleep: allowedScreenSleep ?? this.allowedScreenSleep,
       isLive: isLive ?? this.isLive,
       allowFullScreen: allowFullScreen ?? this.allowFullScreen,
@@ -434,7 +406,6 @@ class ChewieController extends ChangeNotifier {
       hideControlsTimer: hideControlsTimer ?? this.hideControlsTimer,
       progressIndicatorDelay:
           progressIndicatorDelay ?? this.progressIndicatorDelay,
-      pauseOnBackgroundTap: pauseOnBackgroundTap ?? this.pauseOnBackgroundTap,
     );
   }
 
@@ -471,12 +442,6 @@ class ChewieController extends ChangeNotifier {
 
   /// Add a List of Subtitles here in `Subtitles.subtitle`
   Subtitles? subtitle;
-
-  /// Determines whether subtitles should be shown by default when the video starts.
-  ///
-  /// If set to `true`, subtitles will be displayed automatically when the video
-  /// begins playing. If set to `false`, subtitles will be hidden by default.
-  bool showSubtitles;
 
   /// The controller for the video you want to play
   final VideoPlayerController videoPlayerController;
@@ -520,9 +485,6 @@ class ChewieController extends ChangeNotifier {
   final Widget Function(BuildContext context, String errorMessage)?
       errorBuilder;
 
-  /// When the video is buffering, you can build a custom widget.
-  final WidgetBuilder? bufferingBuilder;
-
   /// The Aspect Ratio of the Video. Important to get the correct size of the
   /// video!
   ///
@@ -536,12 +498,6 @@ class ChewieController extends ChangeNotifier {
   /// The colors to use for the Material Progress Bar. By default, the Material
   /// player uses the colors from your Theme.
   final ChewieProgressColors? materialProgressColors;
-
-  // The duration of the fade animation for the seek button (Material Player only)
-  final Duration materialSeekButtonFadeDuration;
-
-  // The size of the seek button for the Material Player only
-  final double materialSeekButtonSize;
 
   /// The placeholder is displayed underneath the Video before it is initialized
   /// or played.
@@ -598,9 +554,6 @@ class ChewieController extends ChangeNotifier {
   /// Adds additional padding to the controls' [SafeArea] as desired.
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets controlsSafeAreaMinimum;
-
-  /// Defines if the player should pause when the background is tapped
-  final bool pauseOnBackgroundTap;
 
   static ChewieController of(BuildContext context) {
     final chewieControllerProvider =

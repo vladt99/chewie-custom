@@ -1,13 +1,11 @@
 import 'package:chewie/src/chewie_player.dart';
 import 'package:chewie/src/helpers/adaptive_controls.dart';
+import 'package:chewie/src/html_based_player/html_based_player.dart';
 import 'package:chewie/src/notifiers/index.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-
-import 'cupertino/html_based_player/html_based_player.dart'
-    show HTMLBasedPlayer;
 
 class PlayerWithControls extends StatelessWidget {
   const PlayerWithControls({
@@ -43,12 +41,12 @@ class PlayerWithControls extends StatelessWidget {
       BuildContext context,
     ) {
       if (kIsWeb) {
+        //FullscreenUtils().isSafariMobile()) {
         return HTMLBasedPlayer(
           webIdentifier: webIdentifier,
           source: chewieController.videoPlayerController.dataSource,
         );
       }
-
       return Stack(
         children: <Widget>[
           if (chewieController.placeholder != null)
@@ -57,7 +55,9 @@ class PlayerWithControls extends StatelessWidget {
             child: AspectRatio(
               aspectRatio: chewieController.aspectRatio ??
                   chewieController.videoPlayerController.value.aspectRatio,
-              child: VideoPlayer(chewieController.videoPlayerController),
+              child: VideoPlayer(
+                chewieController.videoPlayerController,
+              ),
             ),
           ),
           if (chewieController.overlay != null) chewieController.overlay!,
@@ -95,13 +95,16 @@ class PlayerWithControls extends StatelessWidget {
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      return Center(
-        child: SizedBox(
-          height: constraints.maxHeight,
-          width: constraints.maxWidth,
-          child: AspectRatio(
-            aspectRatio: calculateAspectRatio(context),
-            child: buildPlayerWithControls(chewieController, context),
+      return Container(
+        color: Colors.black,
+        child: Center(
+          child: SizedBox(
+            height: constraints.maxHeight,
+            width: constraints.maxWidth,
+            child: AspectRatio(
+              aspectRatio: calculateAspectRatio(context),
+              child: buildPlayerWithControls(chewieController, context),
+            ),
           ),
         ),
       );
