@@ -9,8 +9,6 @@ environment:
   flutter: ">=3.3.0"
 
 dependencies:
-  btk_toolkit:
-    path: ../btk_toolkit
   flutter:
     sdk: flutter
   provider: ^6.0.5
