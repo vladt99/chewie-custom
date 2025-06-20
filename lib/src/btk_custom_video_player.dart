@@ -25,9 +25,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
     }
 
     final userAgent = html.window.navigator.userAgent.toLowerCase();
-    return userAgent.contains('iphone') ||
-        userAgent.contains('ipad') ||
-        userAgent.contains('applewebkit');
+    return userAgent.contains('iphone') || userAgent.contains('ipad');
   }
 
   Future<void> _showVideoModal(BuildContext context) async {
