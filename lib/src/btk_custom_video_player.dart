@@ -1,7 +1,5 @@
 import 'package:chewie/src/chewie_player.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:video_player/video_player.dart';
 
@@ -26,102 +24,60 @@ class BTKCustomVideoPlayer extends StatelessWidget {
     return userAgent.contains('iphone') || userAgent.contains('ipad');
   }
 
+  Future<void> _showVideoModal(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: 600,
+            height: 400,
+            child: _DefaultBTKCustomVideoPlayer(
+              webIdentifier: webIdentifier,
+              source: source,
+              isTitleVisible: isTitleVisible,
+              title: title,
+              autoPlay: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (useIosPlayer) {
-      return _IosOptimizedBTKCustomVideoPlayer(
-        webIdentifier: webIdentifier,
-        source: source,
-        isTitleVisible: isTitleVisible,
-        title: title,
-      );
-    }
-
     return _isIOSBrowser
-        ? _IosOptimizedBTKCustomVideoPlayer(
-            webIdentifier: webIdentifier,
-            source: source,
-            isTitleVisible: isTitleVisible,
-            title: title,
-          )
+        ? MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _showVideoModal(context),
+              child: Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Color(0xFFFF1A4E),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    'Tap to play video',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ))
         : _DefaultBTKCustomVideoPlayer(
             webIdentifier: webIdentifier,
             source: source,
             isTitleVisible: isTitleVisible,
             title: title,
+            autoPlay: false,
           );
-  }
-}
-
-class _IosOptimizedBTKCustomVideoPlayer extends StatefulWidget {
-  const _IosOptimizedBTKCustomVideoPlayer({
-    required this.webIdentifier,
-    required this.source,
-    this.isTitleVisible,
-    this.title,
-  });
-
-  final String webIdentifier;
-  final String source;
-  final bool? isTitleVisible;
-  final String? title;
-
-  @override
-  State<_IosOptimizedBTKCustomVideoPlayer> createState() =>
-      _IosOptimizedBTKCustomVideoPlayerState();
-}
-
-class _IosOptimizedBTKCustomVideoPlayerState
-    extends State<_IosOptimizedBTKCustomVideoPlayer> {
-  late final _player = Player();
-  late final _controller = VideoController(_player);
-
-  @override
-  void initState() {
-    _player.open(Media(
-      widget.source,
-    ));
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.isTitleVisible != null &&
-            widget.isTitleVisible! &&
-            widget.title != null)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.title!,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black.withValues(alpha: 0.8),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Video(
-            controller: _controller,
-            aspectRatio: 16 / 9,
-          ),
-        ),
-      ],
-    );
   }
 }
 
@@ -130,6 +86,7 @@ class _DefaultBTKCustomVideoPlayer extends StatefulWidget {
     required this.webIdentifier,
     required this.source,
     this.isTitleVisible,
+    this.autoPlay = false,
     this.title,
   });
 
@@ -137,6 +94,7 @@ class _DefaultBTKCustomVideoPlayer extends StatefulWidget {
   final String source;
   final bool? isTitleVisible;
   final String? title;
+  final bool autoPlay;
 
   @override
   State<_DefaultBTKCustomVideoPlayer> createState() =>
@@ -155,7 +113,7 @@ class _DefaultBTKCustomVideoPlayerState
     _videoPlayerController1.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController1,
-      autoPlay: false,
+      autoPlay: widget.autoPlay,
       looping: true,
       aspectRatio: 16 / 9,
       hideControlsTimer: const Duration(seconds: 1),
