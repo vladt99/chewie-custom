@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chewie/src/chewie_progress_colors.dart';
+import 'package:chewie/src/helpers/fullscreen/fullscreen.dart';
 import 'package:chewie/src/models/option_item.dart';
 import 'package:chewie/src/models/options_translation.dart';
 import 'package:chewie/src/models/subtitle_model.dart';
@@ -28,10 +29,12 @@ class Chewie extends StatefulWidget {
   const Chewie({
     super.key,
     required this.controller,
+    this.webIdentifier = 'video-player',
   });
 
   /// The [ChewieController]
   final ChewieController controller;
+  final String webIdentifier;
 
   @override
   ChewieState createState() {
@@ -80,6 +83,7 @@ class ChewieState extends State<Chewie> {
         rootNavigator: widget.controller.useRootNavigator,
       ).pop();
       _isFullScreen = false;
+      FullscreenUtils().exitFullscreen();
     }
   }
 
@@ -89,7 +93,9 @@ class ChewieState extends State<Chewie> {
       controller: widget.controller,
       child: ChangeNotifierProvider<PlayerNotifier>.value(
         value: notifier,
-        builder: (context, w) => const PlayerWithControls(),
+        builder: (context, w) => PlayerWithControls(
+          webIdentifier: widget.webIdentifier,
+        ),
       ),
     );
   }
@@ -132,7 +138,9 @@ class ChewieState extends State<Chewie> {
       controller: widget.controller,
       child: ChangeNotifierProvider<PlayerNotifier>.value(
         value: notifier,
-        builder: (context, w) => const PlayerWithControls(),
+        builder: (context, w) => PlayerWithControls(
+          webIdentifier: widget.webIdentifier,
+        ),
       ),
     );
 
@@ -163,6 +171,8 @@ class ChewieState extends State<Chewie> {
       WakelockPlus.enable();
     }
 
+    FullscreenUtils().enterFullscreen();
+
     await Navigator.of(
       context,
       rootNavigator: widget.controller.useRootNavigator,
@@ -173,6 +183,8 @@ class ChewieState extends State<Chewie> {
     }
 
     _isFullScreen = false;
+    FullscreenUtils().exitFullscreen();
+
     widget.controller.exitFullScreen();
 
     if (!widget.controller.allowedScreenSleep) {
