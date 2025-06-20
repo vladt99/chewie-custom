@@ -26,19 +26,25 @@ class BTKCustomVideoPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _isIOSBrowser
-        ? _OptimizedBTKCustomVideoPlayer(
-            webIdentifier: webIdentifier,
-            source: source,
-            isTitleVisible: isTitleVisible,
-            title: title,
-          )
-        : _StockBTKCustomVideoPlayer(
-            webIdentifier: webIdentifier,
-            source: source,
-            isTitleVisible: isTitleVisible,
-            title: title,
-          );
+    return _OptimizedBTKCustomVideoPlayer(
+      webIdentifier: webIdentifier,
+      source: source,
+      isTitleVisible: isTitleVisible,
+      title: title,
+    );
+    // return _isIOSBrowser
+    //     ? _OptimizedBTKCustomVideoPlayer(
+    //         webIdentifier: webIdentifier,
+    //         source: source,
+    //         isTitleVisible: isTitleVisible,
+    //         title: title,
+    //       )
+    //     : _StockBTKCustomVideoPlayer(
+    //         webIdentifier: webIdentifier,
+    //         source: source,
+    //         isTitleVisible: isTitleVisible,
+    //         title: title,
+    //       );
   }
 }
 
