@@ -10,7 +10,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
     super.key,
     required this.webIdentifier,
     required this.source,
-    this.useDefaultPlayer = true,
+    this.useIosPlayer = false,
     this.isTitleVisible,
     this.title,
   });
@@ -19,7 +19,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
   final String source;
   final bool? isTitleVisible;
   final String? title;
-  final bool useDefaultPlayer;
+  final bool useIosPlayer;
 
   bool get _isIOSBrowser {
     final userAgent = html.window.navigator.userAgent.toLowerCase();
@@ -28,8 +28,8 @@ class BTKCustomVideoPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (useDefaultPlayer) {
-      return _DefaultBTKCustomVideoPlayer(
+    if (useIosPlayer) {
+      return _IosOptimizedBTKCustomVideoPlayer(
         webIdentifier: webIdentifier,
         source: source,
         isTitleVisible: isTitleVisible,
