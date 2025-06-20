@@ -31,17 +31,29 @@ class BTKCustomVideoPlayer extends StatelessWidget {
   Future<void> _showVideoModal(BuildContext context) async {
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.transparent,
           content: SizedBox(
             width: 600,
             height: 400,
-            child: _DefaultBTKCustomVideoPlayer(
-              webIdentifier: webIdentifier,
-              source: source,
-              isTitleVisible: isTitleVisible,
-              title: title,
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                _DefaultBTKCustomVideoPlayer(
+                  webIdentifier: webIdentifier,
+                  source: source,
+                  isTitleVisible: isTitleVisible,
+                  title: title,
+                ),
+              ],
             ),
           ),
         );
@@ -60,7 +72,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Color(0xFFFF1A4E),
+                  color: Color(0xFFCE002F),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -129,8 +141,8 @@ class _DefaultBTKCustomVideoPlayerState
   }
 
   @override
-  void dispose() {
-    _videoPlayerController1.dispose();
+  Future<void> dispose() async {
+    await _videoPlayerController1.dispose();
     _chewieController.dispose();
     super.dispose();
   }
