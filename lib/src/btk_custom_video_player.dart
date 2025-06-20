@@ -33,6 +33,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.transparent,
           content: SizedBox(
             width: 600,
             height: 400,
@@ -41,7 +42,6 @@ class BTKCustomVideoPlayer extends StatelessWidget {
               source: source,
               isTitleVisible: isTitleVisible,
               title: title,
-              autoPlay: true,
             ),
           ),
         );
@@ -58,7 +58,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
               onTap: () => _showVideoModal(context),
               child: Container(
                 width: double.infinity,
-                height: 200,
+                height: 50,
                 decoration: BoxDecoration(
                   color: Color(0xFFFF1A4E),
                   borderRadius: BorderRadius.circular(8),
@@ -80,7 +80,6 @@ class BTKCustomVideoPlayer extends StatelessWidget {
             source: source,
             isTitleVisible: isTitleVisible,
             title: title,
-            autoPlay: false,
           );
   }
 }
@@ -90,7 +89,6 @@ class _DefaultBTKCustomVideoPlayer extends StatefulWidget {
     required this.webIdentifier,
     required this.source,
     this.isTitleVisible,
-    this.autoPlay = false,
     this.title,
   });
 
@@ -98,7 +96,6 @@ class _DefaultBTKCustomVideoPlayer extends StatefulWidget {
   final String source;
   final bool? isTitleVisible;
   final String? title;
-  final bool autoPlay;
 
   @override
   State<_DefaultBTKCustomVideoPlayer> createState() =>
@@ -117,7 +114,7 @@ class _DefaultBTKCustomVideoPlayerState
     _videoPlayerController1.initialize();
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController1,
-      autoPlay: widget.autoPlay,
+      autoPlay: false,
       looping: true,
       aspectRatio: 16 / 9,
       hideControlsTimer: const Duration(seconds: 1),
