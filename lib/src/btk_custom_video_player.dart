@@ -10,6 +10,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
     super.key,
     required this.webIdentifier,
     required this.source,
+    this.useDefaultPlayer = true,
     this.isTitleVisible,
     this.title,
   });
@@ -18,6 +19,7 @@ class BTKCustomVideoPlayer extends StatelessWidget {
   final String source;
   final bool? isTitleVisible;
   final String? title;
+  final bool useDefaultPlayer;
 
   bool get _isIOSBrowser {
     final userAgent = html.window.navigator.userAgent.toLowerCase();
@@ -26,30 +28,33 @@ class BTKCustomVideoPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _OptimizedBTKCustomVideoPlayer(
-      webIdentifier: webIdentifier,
-      source: source,
-      isTitleVisible: isTitleVisible,
-      title: title,
-    );
-    // return _isIOSBrowser
-    //     ? _OptimizedBTKCustomVideoPlayer(
-    //         webIdentifier: webIdentifier,
-    //         source: source,
-    //         isTitleVisible: isTitleVisible,
-    //         title: title,
-    //       )
-    //     : _StockBTKCustomVideoPlayer(
-    //         webIdentifier: webIdentifier,
-    //         source: source,
-    //         isTitleVisible: isTitleVisible,
-    //         title: title,
-    //       );
+    if (useDefaultPlayer) {
+      return _DefaultBTKCustomVideoPlayer(
+        webIdentifier: webIdentifier,
+        source: source,
+        isTitleVisible: isTitleVisible,
+        title: title,
+      );
+    }
+
+    return _isIOSBrowser
+        ? _IosOptimizedBTKCustomVideoPlayer(
+            webIdentifier: webIdentifier,
+            source: source,
+            isTitleVisible: isTitleVisible,
+            title: title,
+          )
+        : _DefaultBTKCustomVideoPlayer(
+            webIdentifier: webIdentifier,
+            source: source,
+            isTitleVisible: isTitleVisible,
+            title: title,
+          );
   }
 }
 
-class _OptimizedBTKCustomVideoPlayer extends StatefulWidget {
-  const _OptimizedBTKCustomVideoPlayer({
+class _IosOptimizedBTKCustomVideoPlayer extends StatefulWidget {
+  const _IosOptimizedBTKCustomVideoPlayer({
     required this.webIdentifier,
     required this.source,
     this.isTitleVisible,
@@ -62,12 +67,12 @@ class _OptimizedBTKCustomVideoPlayer extends StatefulWidget {
   final String? title;
 
   @override
-  State<_OptimizedBTKCustomVideoPlayer> createState() =>
-      __OptimizedBTKCustomVideoPlayerState();
+  State<_IosOptimizedBTKCustomVideoPlayer> createState() =>
+      _IosOptimizedBTKCustomVideoPlayerState();
 }
 
-class __OptimizedBTKCustomVideoPlayerState
-    extends State<_OptimizedBTKCustomVideoPlayer> {
+class _IosOptimizedBTKCustomVideoPlayerState
+    extends State<_IosOptimizedBTKCustomVideoPlayer> {
   late final _player = Player();
   late final _controller = VideoController(_player);
 
@@ -120,8 +125,8 @@ class __OptimizedBTKCustomVideoPlayerState
   }
 }
 
-class _StockBTKCustomVideoPlayer extends StatefulWidget {
-  const _StockBTKCustomVideoPlayer({
+class _DefaultBTKCustomVideoPlayer extends StatefulWidget {
+  const _DefaultBTKCustomVideoPlayer({
     required this.webIdentifier,
     required this.source,
     this.isTitleVisible,
@@ -134,12 +139,12 @@ class _StockBTKCustomVideoPlayer extends StatefulWidget {
   final String? title;
 
   @override
-  State<_StockBTKCustomVideoPlayer> createState() =>
-      _StockBTKCustomVideoPlayerState();
+  State<_DefaultBTKCustomVideoPlayer> createState() =>
+      _DefaultBTKCustomVideoPlayerState();
 }
 
-class _StockBTKCustomVideoPlayerState
-    extends State<_StockBTKCustomVideoPlayer> {
+class _DefaultBTKCustomVideoPlayerState
+    extends State<_DefaultBTKCustomVideoPlayer> {
   late final VideoPlayerController _videoPlayerController1;
   late final ChewieController _chewieController;
 
